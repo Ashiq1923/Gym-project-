@@ -1,0 +1,505 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="theme-color" content="#0f172a" />
+<title>IronPulse Gym</title>
+<style>
+:root{--bg:#f1f5f9;--card:#fff;--ink:#0f172a;--muted:#64748b;--line:#e2e8f0;--brand:#f97316;--dark:#0f172a;--green:#16a34a;--amber:#d97706;--red:#dc2626;--radius:12px}
+*{box-sizing:border-box}
+body{margin:0;font-family:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;background:var(--bg);color:var(--ink);line-height:1.45}
+h2,h3{margin:0 0 .5rem;line-height:1.2} h3{font-size:1.05rem} p{margin:.25rem 0 .75rem}
+.muted{color:var(--muted)} .small{font-size:.85rem} .center{text-align:center} .empty{padding:.5rem 0}
+.topbar{background:var(--dark);color:#fff;padding:.6rem 1rem;display:flex;justify-content:space-between;align-items:center;gap:.75rem;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:.5rem;font-weight:700} .brand.big{justify-content:center;margin-bottom:1rem;font-size:1.4rem;color:var(--ink)}
+.user{display:flex;align-items:center;gap:.6rem;flex-wrap:wrap} .uname{font-size:.9rem;opacity:.9}
+.tabs{display:flex;gap:.25rem;overflow-x:auto;background:var(--card);border-bottom:1px solid var(--line);padding:0 .5rem;position:sticky;top:0;z-index:5}
+.tab{border:0;background:none;padding:.8rem 1rem;font:inherit;color:var(--muted);cursor:pointer;white-space:nowrap;border-bottom:3px solid transparent}
+.tab.active{color:var(--ink);font-weight:600;border-color:var(--brand)}
+.content{padding:1rem;width:100%;max-width:1100px;margin:0 auto}
+.center-screen{min-height:100vh;display:grid;place-items:center;padding:1rem}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:1rem;margin-bottom:1rem}
+.card.narrow{width:100%;max-width:420px;margin:0}
+.grid{display:grid;gap:1rem} .cols-2{grid-template-columns:repeat(auto-fit,minmax(290px,1fr))} .cols-3{grid-template-columns:repeat(auto-fit,minmax(230px,1fr))}
+.stats{display:grid;gap:.75rem;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));margin-bottom:1rem}
+.stat{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:.8rem 1rem;border-left:4px solid var(--brand)}
+.stat.green{border-left-color:var(--green)} .stat.amber{border-left-color:var(--amber)} .stat.red{border-left-color:var(--red)}
+.stat .l{font-size:.78rem;color:var(--muted);text-transform:uppercase;letter-spacing:.4px} .stat .v{font-size:1.45rem;font-weight:700}
+.row{display:flex;gap:.5rem;flex-wrap:wrap;align-items:center} .between{justify-content:space-between}
+label{display:block;font-size:.85rem;color:var(--muted);margin-bottom:.6rem}
+input,select,textarea{display:block;width:100%;margin-top:.25rem;padding:.6rem .7rem;font:inherit;color:var(--ink);border:1px solid var(--line);border-radius:8px;background:#fff}
+textarea{min-height:90px;resize:vertical}
+.form-grid{display:grid;gap:.5rem .75rem;grid-template-columns:repeat(auto-fit,minmax(130px,1fr))}
+.btn{background:var(--brand);color:#fff;border:0;padding:.65rem 1rem;border-radius:8px;font:inherit;font-weight:600;cursor:pointer}
+.btn:disabled{opacity:.6} .btn.block{width:100%;margin:.4rem 0} .btn.small{padding:.35rem .7rem;font-size:.85rem}
+.btn.ghost{background:transparent;color:inherit;border:1px solid currentColor} .btn.dark{background:var(--dark)}
+.msg{padding:.6rem .8rem;border-radius:8px;font-size:.9rem;margin:.5rem 0}
+.msg.error{background:#fee2e2;color:#991b1b} .msg.ok{background:#dcfce7;color:#166534} .msg.warn{background:#fef3c7;color:#92400e}
+.badge{padding:.15rem .55rem;border-radius:999px;font-size:.75rem;text-transform:capitalize;background:var(--brand);color:#fff}
+.pill{display:inline-block;padding:.1rem .55rem;border-radius:999px;font-size:.78rem;font-weight:600}
+.pill.green{background:#dcfce7;color:#166534} .pill.amber{background:#fef3c7;color:#92400e} .pill.red{background:#fee2e2;color:#991b1b} .pill.gray{background:#e2e8f0;color:#334155}
+.table-wrap{overflow-x:auto} table{width:100%;border-collapse:collapse;font-size:.92rem}
+th,td{text-align:left;padding:.55rem .6rem;border-bottom:1px solid var(--line);white-space:nowrap}
+th{color:var(--muted);font-weight:600;font-size:.78rem;text-transform:uppercase}
+.item{border:1px solid var(--line);border-radius:10px;padding:.75rem;margin-bottom:.6rem;background:#fff}
+.item pre{white-space:pre-wrap;font:inherit;margin:.4rem 0 0}
+.list-btn{display:block;width:100%;text-align:left;background:#fff;border:1px solid var(--line);border-radius:10px;padding:.7rem .8rem;margin-bottom:.5rem;cursor:pointer;font:inherit}
+.list-btn.active{border-color:var(--brand);background:#fff7ed}
+.qr-wrap{display:grid;place-items:center;padding:1rem;background:#fff;border-radius:var(--radius);border:1px dashed var(--line)}
+.qr-box{background:#fff;padding:10px;display:inline-block}
+#qr-reader{width:100%;max-width:360px;margin:0 auto;border-radius:12px;overflow:hidden}
+.result{font-size:1.05rem;padding:1rem;border-radius:12px;text-align:center;margin:.75rem 0}
+.result.ok{background:#dcfce7;color:#166534} .result.bad{background:#fee2e2;color:#991b1b}
+.spark{width:100%;max-width:320px;height:70px;color:var(--brand)}
+.split{display:grid;gap:1rem;grid-template-columns:minmax(220px,300px) 1fr;align-items:start}
+.modal{position:fixed;inset:0;background:rgba(15,23,42,.6);display:grid;place-items:center;padding:1rem;z-index:50;overflow:auto}
+.modal-card{background:#fff;border-radius:var(--radius);padding:1rem;width:100%;max-width:420px}
+.modal-actions{display:flex;gap:.5rem;justify-content:flex-end;margin-top:1rem}
+.receipt h2{text-align:center;margin-bottom:0}
+.receipt dl{display:grid;grid-template-columns:auto 1fr;gap:.3rem .8rem;margin:0} .receipt dt{color:var(--muted)} .receipt dd{margin:0;text-align:right}
+.receipt hr{border:0;border-top:1px dashed var(--muted);margin:.8rem 0} .receipt-total{display:flex;justify-content:space-between;font-size:1.2rem}
+@media(max-width:760px){.split{grid-template-columns:1fr}}
+@media(max-width:600px){.content{padding:.75rem}.uname{display:none}.tab{padding:.7rem .8rem}}
+@media print{body *{visibility:hidden}.receipt-print,.receipt-print *{visibility:visible}.receipt-print{position:absolute;left:0;top:0;width:100%;padding:1rem}.no-print{display:none!important}}
+</style>
+</head>
+<body>
+<div id="app"><div class="center-screen">Loading…</div></div>
+<div id="modal"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+<script>
+/* ===================== CONFIG ===================== */
+// The ANON (public) key is meant to be in the browser; Row Level Security protects the data.
+// NEVER put the service_role key here.
+const SUPABASE_URL = 'https://mgegqijimstyykaieola.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1nZWdxaWppbXN0eXlrYWllb2xhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTM0NzMyMDIsImV4cCI6MjEwOTA0OTIwMn0.8yiIQR0Y8hrTgxmUe4gGlGbGZxlz3cAcI1Uv7jVYa8c';
+const GYM_TZ = 'Asia/Karachi';
+
+/* ===================== HELPERS ===================== */
+const $ = (s) => document.querySelector(s);
+const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const todayStr = () => new Date().toLocaleDateString('en-CA', { timeZone: GYM_TZ });
+const toGymDate = (ts) => new Date(ts).toLocaleDateString('en-CA', { timeZone: GYM_TZ });
+const addDays = (d, n) => { const x = new Date(d + 'T00:00:00Z'); x.setUTCDate(x.getUTCDate() + n); return x.toISOString().slice(0, 10); };
+const daysBetween = (a, b) => Math.round((new Date(b + 'T00:00:00Z') - new Date(a + 'T00:00:00Z')) / 86400000);
+const fmtDate = (d) => { if (!d) return '—'; const o = d.length === 10; return new Date(o ? d + 'T00:00:00Z' : d).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric', timeZone: o ? 'UTC' : GYM_TZ }); };
+const fmtTime = (ts) => new Date(ts).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', timeZone: GYM_TZ });
+const money = (n) => 'Rs ' + Number(n || 0).toLocaleString('en-PK', { maximumFractionDigits: 0 });
+const num = (v) => (v === '' || v == null ? null : Number(v));
+const groupBy = (rows, k) => rows.reduce((a, r) => ((a[r[k]] ||= []).push(r), a), {});
+const latestMembership = (l = []) => l.filter((m) => m.status === 'active').sort((a, b) => b.end_date.localeCompare(a.end_date))[0] || null;
+function membershipState(m) {
+  if (!m) return { label: 'No membership', tone: 'gray', days: null };
+  const left = daysBetween(todayStr(), m.end_date);
+  if (left < 0) return { label: 'Expired', tone: 'red', days: left };
+  if (left <= 7) return { label: 'Expiring', tone: 'amber', days: left };
+  return { label: 'Active', tone: 'green', days: left };
+}
+const pill = (tone, t) => `<span class="pill ${tone}">${esc(t)}</span>`;
+const empty = (t) => `<p class="muted empty">${esc(t)}</p>`;
+const stat = (l, v, tone = '') => `<div class="stat ${tone}"><div class="l">${esc(l)}</div><div class="v">${v}</div></div>`;
+function table(head, rows) {
+  if (!rows.length) return '';
+  return `<div class="table-wrap"><table><thead><tr>${head.map((h) => `<th>${h}</th>`).join('')}</tr></thead><tbody>${rows.map((r) => `<tr>${r.map((c) => `<td>${c}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`;
+}
+function spark(values) {
+  const v = values.filter((x) => x != null).map(Number);
+  if (v.length < 2) return '<p class="muted small">Trend dekhne ke liye kam az kam 2 entries daalein.</p>';
+  const W = 260, H = 60, min = Math.min(...v), span = (Math.max(...v) - min) || 1;
+  const pts = v.map((y, i) => [(i / (v.length - 1)) * (W - 8) + 4, H - 6 - ((y - min) / span) * (H - 12)]);
+  return `<svg viewBox="0 0 ${W} ${H}" class="spark"><polyline fill="none" stroke="currentColor" stroke-width="2" points="${pts.map((p) => p.join(',')).join(' ')}"/>${pts.map((p) => `<circle cx="${p[0]}" cy="${p[1]}" r="3" fill="currentColor"/>`).join('')}</svg>`;
+}
+
+/* ===================== STATE & CLIENT ===================== */
+function keyRole(k) { try { return JSON.parse(atob(k.split('.')[1].replace(/-/g, '+').replace(/_/g, '/'))).role; } catch { return null; } }
+const app = $('#app');
+if (keyRole(SUPABASE_ANON_KEY) === 'service_role') {
+  app.innerHTML = '<div class="center-screen"><div class="card narrow"><h2>Galat key</h2><p>Yeh service_role key hai. Sirf anon key use karein.</p></div></div>';
+  throw new Error('service_role key in browser');
+}
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+const S = { profile: null, tab: null, flash: null, sel: null, prefill: null, plans: [], members: [], ms: [], channel: null };
+const flash = (ok, text) => { S.flash = { ok, text }; };
+function flashHtml() { const f = S.flash; S.flash = null; return f ? `<div class="msg ${f.ok ? 'ok' : 'error'}">${esc(f.text)}</div>` : ''; }
+const setBody = (html) => { const m = $('#main'); if (m) m.innerHTML = html; };
+
+/* ===================== QR SCANNER ===================== */
+let scanner = null, lastScan = { t: '', at: 0 };
+async function stopScanner() {
+  if (scanner) { try { if (scanner.isScanning) await scanner.stop(); scanner.clear(); } catch (e) {} scanner = null; }
+}
+async function startScanner(id, cb) {
+  await stopScanner();
+  try {
+    scanner = new Html5Qrcode(id);
+    await scanner.start({ facingMode: 'environment' }, { fps: 10, qrbox: { width: 220, height: 220 } }, (txt) => {
+      const n = Date.now();
+      if (txt === lastScan.t && n - lastScan.at < 4000) return;
+      lastScan = { t: txt, at: n }; cb(txt);
+    }, () => {});
+  } catch (e) {
+    const el = document.getElementById(id);
+    if (el) el.innerHTML = '<p class="msg error">Camera nahi khula: ' + esc(e.message || e) + '. Camera permission dein (HTTPS zaroori hai).</p>';
+    scanner = null;
+  }
+}
+function makeQR(sel, text, size = 200) { const el = $(sel); if (el) { el.innerHTML = ''; new QRCode(el, { text, width: size, height: size }); } }
+
+/* ===================== AUTH SCREENS ===================== */
+function renderAuth(mode, info = '') {
+  const reg = mode === 'register';
+  app.innerHTML = `<div class="center-screen"><form class="card narrow" data-form="${reg ? 'register' : 'login'}">
+    <div class="brand big">🏋️ IronPulse Gym</div>
+    <h2>${reg ? 'Join the gym' : 'Sign in'}</h2>
+    ${reg ? '<p class="muted">Member account banayein, phir portal me plan chunein.</p><label>Full name<input name="full_name" required></label><label>Phone<input name="phone" type="tel"></label>' : ''}
+    <label>Email<input name="email" type="email" required autocomplete="email"></label>
+    <label>Password<input name="password" type="password" required minlength="6" autocomplete="${reg ? 'new-password' : 'current-password'}"></label>
+    ${flashHtml()}${info ? `<div class="msg ok">${esc(info)}</div>` : ''}
+    <button class="btn block">${reg ? 'Create account' : 'Sign in'}</button>
+    <p class="muted center">${reg ? 'Pehle se member? <a href="#" data-act="show-login">Sign in</a>' : 'Naye member? <a href="#" data-act="show-register">Join the gym</a>'}</p>
+  </form></div>`;
+}
+
+async function loadProfileAndRender() {
+  const { data: { session } } = await sb.auth.getSession();
+  if (!session) return renderAuth('login');
+  const { data } = await sb.from('profiles').select('*').eq('id', session.user.id).maybeSingle();
+  if (!data) {
+    app.innerHTML = '<div class="center-screen"><div class="card narrow"><h2>Profile nahi mila</h2><p>Pehle SQL setup chalayein (gym-setup.sql), phir dobara sign in karein.</p><button class="btn" data-act="logout">Sign out</button></div></div>';
+    return;
+  }
+  S.profile = data;
+  S.tab = { member: 'overview', receptionist: 'checkin', trainer: 'members', owner: 'overview' }[data.role] || 'overview';
+  render();
+}
+
+/* ===================== SHELL & ROUTER ===================== */
+function shell(tabs) {
+  app.innerHTML = `<header class="topbar no-print"><div class="brand">🏋️ IronPulse Gym</div>
+    <div class="user"><span class="badge">${esc(S.profile.role)}</span><span class="uname">${esc(S.profile.full_name || S.profile.email)}</span>
+    <button class="btn ghost small" data-act="logout">Sign out</button></div></header>
+    ${tabs.length > 1 ? `<nav class="tabs no-print">${tabs.map((t) => `<button class="tab ${S.tab === t[0] ? 'active' : ''}" data-act="tab" data-id="${t[0]}">${t[1]}</button>`).join('')}</nav>` : ''}
+    <main class="content" id="main"><p class="muted">Loading…</p></main>`;
+}
+async function render() {
+  await stopScanner();
+  const v = { member: viewMember, receptionist: viewReception, trainer: viewTrainer, owner: viewOwner }[S.profile.role];
+  try { await v(); } catch (e) { setBody(`<div class="msg error">Error: ${esc(e.message || e)}</div>`); }
+}
+
+/* ===================== MEMBER ===================== */
+async function viewMember() {
+  const T = [['overview', 'Membership'], ['checkin', 'QR & Check-in'], ['plans', 'Workouts & Diet'], ['progress', 'Progress']];
+  shell(T); const tab = S.tab, uid = S.profile.id;
+  if (tab === 'overview') {
+    const [pl, ms, pay] = await Promise.all([
+      sb.from('membership_plans').select('*').eq('active', true).order('price'),
+      sb.from('memberships').select('*, plan:membership_plans(name)').eq('member_id', uid).order('created_at', { ascending: false }),
+      sb.from('payments').select('*').eq('member_id', uid).order('paid_at', { ascending: false }),
+    ]);
+    if (S.tab !== tab) return;
+    S.plans = pl.data || [];
+    const list = ms.data || [], active = latestMembership(list), st = membershipState(active), pending = list.find((m) => m.status === 'pending');
+    setBody(`${flashHtml()}
+      <div class="card"><div class="row between"><h3>My membership</h3>${pill(st.tone, st.label)}</div>
+        ${active ? `<p>${esc(active.plan?.name)} plan — valid until <strong>${fmtDate(active.end_date)}</strong>${st.days >= 0 ? ` <span class="muted">(${st.days} din baqi)</span>` : ''}</p>` : '<p class="muted">Abhi koi active membership nahi. Neeche se plan chunein.</p>'}
+        ${pending ? `<p class="msg warn">Pending request: <strong>${esc(pending.plan?.name)}</strong>. Reception par fee de kar activate karwayein.</p>` : ''}</div>
+      <div class="card"><h3>${active ? 'Renew / upgrade' : 'Plan join karein'}</h3><div class="grid cols-3">
+        ${S.plans.map((p) => `<div class="item"><strong>${esc(p.name)}</strong><div>${money(p.price)} <span class="muted">/ ${p.duration_days} din</span></div>
+          ${p.description ? `<p class="muted small">${esc(p.description)}</p>` : ''}
+          <button class="btn small" data-act="join" data-id="${p.id}" ${pending ? 'disabled' : ''}>${pending ? 'Request pending' : 'Request this plan'}</button></div>`).join('')}</div></div>
+      <div class="card"><h3>Payment history</h3>${(pay.data || []).length ? table(['Receipt', 'Date', 'Method', 'Amount'], pay.data.map((p) => [esc(p.receipt_no), fmtDate(p.paid_at), esc(p.method), money(p.amount)])) : empty('Abhi koi payment nahi.')}</div>`);
+  } else if (tab === 'checkin') {
+    const att = await sb.from('attendance').select('*').eq('member_id', uid).order('checked_in_at', { ascending: false }).limit(30);
+    if (S.tab !== tab) return;
+    setBody(`${flashHtml()}<div class="grid cols-2">
+      <div class="card"><h3>My QR code</h3><p class="muted">Reception par yeh dikhayein.</p><div class="qr-wrap"><div class="qr-box" id="my-qr"></div></div></div>
+      <div class="card"><h3>Gym ka QR scan karein</h3><p class="muted">Gym ke darwaze par laga QR scan karke khud check-in karein.</p>
+        <div id="scan-area"><button class="btn" data-act="scan-open">Scanner kholen</button></div><div id="self-result"></div></div></div>
+      <div class="card"><h3>Recent attendance</h3>${(att.data || []).length ? table(['Date', 'Time'], att.data.map((a) => [fmtDate(a.attendance_date), fmtTime(a.checked_in_at)])) : empty('Abhi koi visit nahi.')}</div>`);
+    makeQR('#my-qr', S.profile.qr_code, 200);
+  } else if (tab === 'plans') {
+    const [w, d] = await Promise.all([
+      sb.from('workout_plans').select('*').eq('member_id', uid).order('created_at', { ascending: false }),
+      sb.from('diet_plans').select('*').eq('member_id', uid).order('created_at', { ascending: false }),
+    ]);
+    if (S.tab !== tab) return;
+    setBody(`<div class="grid cols-2"><div class="card"><h3>Workout plans</h3>${(w.data || []).length ? w.data.map(workoutItem).join('') : empty('Trainer ne abhi plan nahi diya.')}</div>
+      <div class="card"><h3>Diet plans</h3>${(d.data || []).length ? d.data.map(dietItem).join('') : empty('Abhi diet plan nahi.')}</div></div>`);
+  } else if (tab === 'progress') {
+    const pm = await sb.from('progress_metrics').select('*').eq('member_id', uid).order('recorded_on', { ascending: true });
+    if (S.tab !== tab) return;
+    setBody(`${flashHtml()}<div class="grid cols-2"><form class="card" data-form="metric"><h3>Aaj ki metrics</h3>
+      <div class="form-grid"><label>Weight (kg)<input name="weight_kg" type="number" step="0.1"></label><label>Body fat (%)<input name="body_fat_pct" type="number" step="0.1"></label>
+      <label>Chest (cm)<input name="chest_cm" type="number" step="0.1"></label><label>Waist (cm)<input name="waist_cm" type="number" step="0.1"></label></div>
+      <label>Notes<input name="notes"></label><button class="btn">Save</button></form>
+      <div class="card"><h3>Weight trend</h3>${spark((pm.data || []).map((m) => m.weight_kg))}<h3 style="margin-top:1rem">Body fat trend</h3>${spark((pm.data || []).map((m) => m.body_fat_pct))}</div></div>
+      <div class="card"><h3>History</h3>${(pm.data || []).length ? table(['Date', 'Weight', 'BF%', 'Chest', 'Waist', 'Notes', ''], [...pm.data].reverse().map((m) => [fmtDate(m.recorded_on), m.weight_kg ?? '—', m.body_fat_pct ?? '—', m.chest_cm ?? '—', m.waist_cm ?? '—', esc(m.notes || ''), m.created_by === uid ? `<button class="btn ghost small" data-act="del" data-table="progress_metrics" data-id="${m.id}">Delete</button>` : ''])) : empty('Abhi koi entry nahi.')}</div>`);
+  }
+}
+const workoutItem = (w, del = false) => `<div class="item"><div class="row between"><strong>${esc(w.title)} <span class="muted small">· ${fmtDate(w.created_at)}</span></strong>${del ? `<button class="btn ghost small" data-act="del" data-table="workout_plans" data-id="${w.id}">Delete</button>` : ''}</div><pre>${esc(w.details)}</pre></div>`;
+const dietItem = (d, del = false) => `<div class="item"><div class="row between"><strong>${esc(d.title)} <span class="muted small">· ${fmtDate(d.created_at)}</span></strong>${del ? `<button class="btn ghost small" data-act="del" data-table="diet_plans" data-id="${d.id}">Delete</button>` : ''}</div>
+  <div class="row small muted">${d.daily_calories ? `<span>${d.daily_calories} kcal</span>` : ''}${d.protein_g != null ? `<span>P ${d.protein_g}g</span>` : ''}${d.carbs_g != null ? `<span>C ${d.carbs_g}g</span>` : ''}${d.fat_g != null ? `<span>F ${d.fat_g}g</span>` : ''}</div><pre>${esc(d.details)}</pre></div>`;
+
+/* ===================== RECEPTIONIST ===================== */
+const PAY_SELECT = '*, member:profiles!member_id(full_name, phone), membership:memberships(start_date, end_date, plan:membership_plans(name))';
+async function viewReception() {
+  const T = [['checkin', 'Check-in'], ['payments', 'Fees & Receipts'], ['renewals', 'Renewals']];
+  shell(T); const tab = S.tab;
+  const [m, ms, pl] = await Promise.all([
+    sb.from('profiles').select('id, full_name, phone, email, qr_code').eq('role', 'member').order('full_name'),
+    sb.from('memberships').select('*, plan:membership_plans(name)'),
+    sb.from('membership_plans').select('*').eq('active', true).order('price'),
+  ]);
+  if (S.tab !== tab) return;
+  S.members = m.data || []; S.ms = ms.data || []; S.plans = pl.data || [];
+  if (tab === 'checkin') {
+    setBody(`<div class="grid cols-2"><div class="card"><h3>Member QR scan karein</h3><div id="qr-reader"></div><div id="ci-result"></div>
+      <h3 style="margin-top:1rem">Manual check-in</h3><input placeholder="Naam ya phone search…" data-input="ci-search"><div id="ci-matches"></div>
+      <div class="row" style="margin-top:.5rem"><input id="ci-manual" style="flex:1" placeholder="…ya QR value paste karein"><button class="btn small" data-act="ci-manual">Check in</button></div></div>
+      <div class="card"><div class="row between"><h3>Aaj ki attendance (<span id="today-count">0</span>)</h3><button class="btn ghost small" data-act="door-qr">Door QR</button></div>
+      <div id="door-box"></div><div id="today-list"></div></div></div>`);
+    refreshToday();
+    startScanner('qr-reader', doCheckIn);
+  } else if (tab === 'payments') {
+    const pre = S.prefill; S.prefill = null;
+    const rec = await sb.from('payments').select(PAY_SELECT).order('paid_at', { ascending: false }).limit(15);
+    if (S.tab !== tab) return;
+    setBody(`${flashHtml()}<div class="grid cols-2"><form class="card" data-form="pay"><h3>Fee record karein</h3>
+      <label>Member dhoondhein<input data-input="pay-search" placeholder="Naam, phone ya email…"></label>
+      <label>Member<select name="member_id" id="pay-member" data-change="pay-member" required></select></label><div id="pay-pending"></div>
+      <label>Plan<select name="plan_id" id="pay-plan" data-change="pay-plan" required><option value="">Plan chunein…</option>${S.plans.map((p) => `<option value="${p.id}">${esc(p.name)} — ${money(p.price)} / ${p.duration_days}d</option>`).join('')}</select></label>
+      <div class="form-grid"><label>Amount (Rs)<input name="amount" id="pay-amount" type="number" min="0" required></label>
+      <label>Method<select name="method"><option value="cash">Cash</option><option value="card">Card</option><option value="bank_transfer">Bank transfer</option><option value="online">Online</option></select></label></div>
+      <label>Note<input name="note"></label><input type="hidden" name="membership_id" id="pay-ms"><button class="btn">Payment save + receipt</button></form>
+      <div class="card"><h3>Recent payments</h3>${(rec.data || []).length ? table(['Receipt', 'Member', 'Amount', ''], rec.data.map((p) => [esc(p.receipt_no), esc(p.member?.full_name), money(p.amount), `<button class="btn ghost small" data-act="receipt" data-id="${p.id}">Receipt</button>`])) : empty('Abhi koi payment nahi.')}</div></div>`);
+    fillMemberSelect('');
+    if (pre) { $('#pay-member').value = pre.member_id; payMemberChanged(pre.plan_id, pre.membership_id); }
+  } else if (tab === 'renewals') {
+    const by = groupBy(S.ms, 'member_id');
+    const rows = S.members.map((m) => { const l = by[m.id] || [], a = latestMembership(l); return { m, a, p: l.find((x) => x.status === 'pending'), st: membershipState(a) }; })
+      .filter((r) => r.p || (r.a && r.st.days <= 14)).sort((x, y) => (x.st.days ?? -999) - (y.st.days ?? -999));
+    setBody(`<div class="card"><h3>Renewal tracker</h3><p class="muted">Pending requests, 14 din me expire hone wale, aur expire ho chuke members.</p>
+      ${rows.length ? table(['Member', 'Phone', 'Plan', 'Ends', 'Status', ''], rows.map(({ m, a, p, st }) => [esc(m.full_name), esc(m.phone || '—'), esc((p || a)?.plan?.name || '—'), a ? fmtDate(a.end_date) : '—',
+        (p ? pill('amber', 'Requested') + ' ' : '') + (a ? pill(st.tone, st.days < 0 ? `Expired ${-st.days}d ago` : `${st.days}d left`) : ''),
+        `<button class="btn small" data-act="collect" data-member="${m.id}" data-plan="${(p || a)?.plan_id || ''}" data-ms="${p?.id || ''}">Fee lein</button>`])) : empty('Abhi kisi par action ki zaroorat nahi.')}</div>`);
+  }
+}
+function fillMemberSelect(q) {
+  const sel = $('#pay-member'); if (!sel) return; const keep = sel.value; q = q.toLowerCase();
+  sel.innerHTML = '<option value="">Member chunein…</option>' + S.members.filter((m) => (m.full_name + ' ' + (m.phone || '') + ' ' + (m.email || '')).toLowerCase().includes(q))
+    .map((m) => `<option value="${m.id}">${esc(m.full_name)}${m.phone ? ' · ' + esc(m.phone) : ''}</option>`).join('');
+  sel.value = keep;
+}
+function payMemberChanged(forcePlan, forceMs) {
+  const id = $('#pay-member').value; const pend = S.ms.find((m) => m.member_id === id && m.status === 'pending');
+  const msId = forceMs ?? pend?.id ?? ''; const planId = forcePlan || pend?.plan_id;
+  $('#pay-ms').value = msId;
+  $('#pay-pending').innerHTML = msId ? '<p class="msg warn">Is member ne online plan request kiya hai. Payment save karne par activate ho jayega.</p>' : '';
+  if (planId) { $('#pay-plan').value = planId; const p = S.plans.find((x) => x.id === planId); if (p) $('#pay-amount').value = p.price; }
+}
+async function refreshToday() {
+  const { data } = await sb.from('attendance').select('id, checked_in_at, member:profiles!member_id(full_name)').eq('attendance_date', todayStr()).order('checked_in_at', { ascending: false });
+  const l = $('#today-list'); if (!l) return; $('#today-count').textContent = (data || []).length;
+  l.innerHTML = (data || []).length ? table(['Member', 'Time'], data.map((a) => [esc(a.member?.full_name), fmtTime(a.checked_in_at)])) : empty('Abhi tak koi check-in nahi.');
+}
+async function doCheckIn(qr) {
+  const { data, error } = await sb.rpc('check_in_member', { p_qr: String(qr).trim() });
+  const r = error ? { ok: false, message: error.message } : data;
+  const box = $('#ci-result'); if (box) box.innerHTML = `<div class="result ${r.ok ? 'ok' : 'bad'}"><strong>${esc(r.name || '')}</strong><div>${r.ok ? 'Checked in · valid until ' + fmtDate(r.valid_until) : esc(r.message)}</div></div>`;
+  refreshToday();
+}
+async function showReceipt(id) {
+  const { data: p } = await sb.from('payments').select(PAY_SELECT).eq('id', id).single(); if (!p) return;
+  const ms = p.membership, M = { cash: 'Cash', card: 'Card', bank_transfer: 'Bank transfer', online: 'Online' };
+  $('#modal').innerHTML = `<div class="modal"><div class="modal-card"><div class="receipt receipt-print"><h2>IronPulse Gym</h2><p class="muted center">Payment Receipt</p><hr>
+    <dl><dt>Receipt no.</dt><dd>${esc(p.receipt_no)}</dd><dt>Date</dt><dd>${fmtDate(p.paid_at)} ${fmtTime(p.paid_at)}</dd><dt>Member</dt><dd>${esc(p.member?.full_name)}</dd>
+    ${p.member?.phone ? `<dt>Phone</dt><dd>${esc(p.member.phone)}</dd>` : ''}<dt>Plan</dt><dd>${esc(ms?.plan?.name || '—')}</dd>
+    ${ms ? `<dt>Valid</dt><dd>${fmtDate(ms.start_date)} – ${fmtDate(ms.end_date)}</dd>` : ''}<dt>Method</dt><dd>${M[p.method] || esc(p.method)}</dd>${p.note ? `<dt>Note</dt><dd>${esc(p.note)}</dd>` : ''}</dl><hr>
+    <div class="receipt-total"><span>Amount paid</span><strong>${money(p.amount)}</strong></div><p class="muted center small">Thank you for training with us!</p></div>
+    <div class="modal-actions no-print"><button class="btn" data-act="print">Print</button><button class="btn ghost" data-act="close-modal">Close</button></div></div></div>`;
+}
+
+/* ===================== TRAINER ===================== */
+async function viewTrainer() {
+  shell([['members', 'My Members']]);
+  const { data } = await sb.from('profiles').select('*').eq('role', 'member').eq('trainer_id', S.profile.id).order('full_name');
+  const list = data || []; if (!S.sel && list[0]) S.sel = list[0].id;
+  const m = list.find((x) => x.id === S.sel);
+  setBody(`<div class="split"><div class="card"><h3>Assigned members (${list.length})</h3>${list.length ? '' : empty('Abhi koi member assign nahi. Owner se assign karwayein.')}
+    ${list.map((x) => `<button class="list-btn ${S.sel === x.id ? 'active' : ''}" data-act="sel" data-id="${x.id}"><strong>${esc(x.full_name)}</strong><div class="muted small">${esc(x.phone || x.email || '')}</div></button>`).join('')}</div>
+    <div id="detail">${m ? '<p class="muted">Loading…</p>' : '<div class="card">' + empty('Member chunein.') + '</div>'}</div></div>`);
+  if (!m) return;
+  const id = m.id;
+  const [ms, att, pm, wp, dp] = await Promise.all([
+    sb.from('memberships').select('*, plan:membership_plans(name)').eq('member_id', id),
+    sb.from('attendance').select('*').eq('member_id', id).order('attendance_date', { ascending: false }).limit(30),
+    sb.from('progress_metrics').select('*').eq('member_id', id).order('recorded_on', { ascending: true }),
+    sb.from('workout_plans').select('*').eq('member_id', id).order('created_at', { ascending: false }),
+    sb.from('diet_plans').select('*').eq('member_id', id).order('created_at', { ascending: false }),
+  ]);
+  if (S.sel !== id || !$('#detail')) return;
+  const a = latestMembership(ms.data || []), st = membershipState(a), since = addDays(todayStr(), -30);
+  $('#detail').innerHTML = `${flashHtml()}<div class="card"><div class="row between"><h3>${esc(m.full_name)}</h3>${pill(st.tone, st.label)}</div><p class="muted">${esc(m.email || '')} ${m.phone ? '· ' + esc(m.phone) : ''}</p>
+    <div class="row"><span>Plan: <strong>${esc(a?.plan?.name || '—')}</strong></span><span>Valid: <strong>${fmtDate(a?.end_date)}</strong></span><span>Visits (30d): <strong>${(att.data || []).filter((x) => x.attendance_date >= since).length}</strong></span><span>Last visit: <strong>${fmtDate((att.data || [])[0]?.attendance_date)}</strong></span></div></div>
+    <div class="grid cols-2"><div class="card"><h3>Training profile</h3>${spark((pm.data || []).map((x) => x.weight_kg))}
+      ${(pm.data || []).length ? table(['Date', 'Wt', 'BF%', 'Chest', 'Waist'], [...pm.data].reverse().slice(0, 8).map((x) => [fmtDate(x.recorded_on), x.weight_kg ?? '—', x.body_fat_pct ?? '—', x.chest_cm ?? '—', x.waist_cm ?? '—'])) : empty('Koi metrics nahi.')}
+      <form data-form="metric-trainer" style="margin-top:.75rem"><div class="form-grid"><label>Weight (kg)<input name="weight_kg" type="number" step="0.1"></label><label>Body fat (%)<input name="body_fat_pct" type="number" step="0.1"></label></div><button class="btn small dark">Measurement add karein</button></form></div>
+    <div class="card"><h3>Workout plans</h3>${(wp.data || []).length ? wp.data.map((w) => workoutItem(w, true)).join('') : empty('Abhi workout plan nahi.')}
+      <form data-form="workout"><h3>Naya workout assign karein</h3><label>Title<input name="title" required placeholder="e.g. 4-week strength"></label><label>Details<textarea name="details" required placeholder="Day 1: Squat 4x8, Bench 4x8…"></textarea></label><button class="btn">Assign workout</button></form></div></div>
+    <div class="card"><h3>Diet & nutrition plans</h3>${(dp.data || []).length ? dp.data.map((d) => dietItem(d, true)).join('') : empty('Abhi diet plan nahi.')}
+      <form data-form="diet"><h3>Diet plan banayein</h3><label>Title<input name="title" required placeholder="e.g. Lean bulk — 2800 kcal"></label>
+      <div class="form-grid"><label>Calories<input name="daily_calories" type="number"></label><label>Protein (g)<input name="protein_g" type="number"></label><label>Carbs (g)<input name="carbs_g" type="number"></label><label>Fat (g)<input name="fat_g" type="number"></label></div>
+      <label>Meals & notes<textarea name="details" required placeholder="Breakfast: …&#10;Lunch: …&#10;Dinner: …"></textarea></label><button class="btn">Assign diet plan</button></form></div>`;
+}
+
+/* ===================== OWNER ===================== */
+async function viewOwner() {
+  const T = [['overview', 'Live Overview'], ['lists', 'Member Lists'], ['reports', 'Reports'], ['people', 'People & Roles'], ['plans', 'Plans']];
+  shell(T); const tab = S.tab;
+  startRealtime();
+  const since = addDays(todayStr(), -60);
+  const [p, ms, pay, att, pl] = await Promise.all([
+    sb.from('profiles').select('*').order('full_name'),
+    sb.from('memberships').select('*, plan:membership_plans(name)'),
+    sb.from('payments').select('id, amount, paid_at, member:profiles!member_id(full_name)').order('paid_at', { ascending: false }),
+    sb.from('attendance').select('id, member_id, attendance_date, checked_in_at').gte('attendance_date', since).order('checked_in_at', { ascending: false }),
+    sb.from('membership_plans').select('*').order('price'),
+  ]);
+  if (S.tab !== tab) return;
+  const profiles = p.data || [], payments = pay.data || [], attendance = att.data || [], plans = pl.data || [];
+  const members = profiles.filter((x) => x.role === 'member'), by = groupBy(ms.data || [], 'member_id'), today = todayStr();
+  const last = {}; attendance.forEach((a) => { if (!last[a.member_id] || a.attendance_date > last[a.member_id]) last[a.member_id] = a.attendance_date; });
+  const rows = members.map((m) => { const a = latestMembership(by[m.id]); return { m, a, left: a ? daysBetween(today, a.end_date) : null, last: last[m.id] || null }; });
+  const expiring = rows.filter((r) => r.a && r.left >= 0 && r.left <= 7).sort((x, y) => x.left - y.left);
+  const inactive = rows.filter((r) => r.a && r.left >= 0 && (!r.last || daysBetween(r.last, today) >= 14)).sort((x, y) => (x.last || '').localeCompare(y.last || ''));
+  const missing = rows.filter((r) => !r.a || r.left < 0).sort((x, y) => (y.left ?? -9999) - (x.left ?? -9999));
+  const sum = (arr) => arr.reduce((s, x) => s + Number(x.amount), 0);
+  const revToday = sum(payments.filter((x) => toGymDate(x.paid_at) === today)), revMonth = sum(payments.filter((x) => toGymDate(x.paid_at).startsWith(today.slice(0, 7))));
+  const todayAtt = attendance.filter((a) => a.attendance_date === today);
+  const nameOf = (id) => esc(profiles.find((x) => x.id === id)?.full_name || '');
+  const mt = (rs, cols) => rs.length ? table(['Member', 'Phone', ...cols.map((c) => c[0])], rs.map((r) => [esc(r.m.full_name), esc(r.m.phone || '—'), ...cols.map((c) => c[1](r))])) : empty('Koi nahi — bahut accha!');
+  if (tab === 'overview') {
+    setBody(`<p class="muted small">● Live — khud update hota hai</p><div class="stats">${stat('Revenue today', money(revToday))}${stat('This month', money(revMonth))}${stat('Total revenue', money(sum(payments)))}
+      ${stat('Check-ins today', todayAtt.length, 'green')}${stat('Active members', rows.filter((r) => r.a && r.left >= 0).length, 'green')}${stat('Expiring ≤7d', expiring.length, 'amber')}${stat('Inactive', inactive.length, 'amber')}${stat('Missing / lapsed', missing.length, 'red')}</div>
+      <div class="grid cols-2"><div class="card"><h3>Latest payments</h3>${payments.length ? table(['When', 'Member', 'Amount'], payments.slice(0, 8).map((x) => [fmtDate(x.paid_at) + ' ' + fmtTime(x.paid_at), esc(x.member?.full_name), money(x.amount)])) : empty('Abhi koi payment nahi.')}</div>
+      <div class="card"><h3>Aaj ke check-ins</h3>${todayAtt.length ? table(['Member', 'Time'], todayAtt.slice(0, 10).map((a) => [nameOf(a.member_id), fmtTime(a.checked_in_at)])) : empty('Abhi kisi ne check-in nahi kiya.')}</div></div>`);
+  } else if (tab === 'lists') {
+    setBody(`<div class="card"><h3>7 din me expire (${expiring.length})</h3>${mt(expiring, [['Plan', (r) => esc(r.a.plan?.name)], ['Ends', (r) => fmtDate(r.a.end_date)], ['Left', (r) => pill('amber', r.left + 'd')]])}</div>
+      <div class="card"><h3>Inactive — active plan, 14+ din se visit nahi (${inactive.length})</h3>${mt(inactive, [['Plan', (r) => esc(r.a.plan?.name)], ['Last visit', (r) => (r.last ? fmtDate(r.last) + ` (${daysBetween(r.last, today)}d ago)` : '60 din me koi visit nahi')]])}</div>
+      <div class="card"><h3>Missing — expired ya kabhi join nahi kiya (${missing.length})</h3>${mt(missing, [['Status', (r) => (r.a ? pill('red', `Expired ${-r.left}d ago`) : pill('gray', 'No membership'))], ['Last visit', (r) => (r.last ? fmtDate(r.last) : '—')]])}</div>`);
+  } else if (tab === 'reports') {
+    const days = Array.from({ length: 14 }, (_, i) => addDays(today, -i)), rev = {}, cnt = {}, pc = {};
+    payments.forEach((x) => { const d = toGymDate(x.paid_at); rev[d] = (rev[d] || 0) + Number(x.amount); pc[d] = (pc[d] || 0) + 1; });
+    attendance.forEach((a) => { cnt[a.attendance_date] = (cnt[a.attendance_date] || 0) + 1; });
+    const max = Math.max(1, ...days.map((d) => rev[d] || 0));
+    setBody(`<div class="card"><h3>Daily report — pichle 14 din</h3>${table(['Date', 'Payments', 'Revenue', '', 'Check-ins'], days.map((d) => [fmtDate(d), pc[d] || 0, money(rev[d] || 0), `<div style="background:var(--brand);height:8px;border-radius:4px;width:${((rev[d] || 0) / max) * 100}px"></div>`, cnt[d] || 0]))}</div>`);
+  } else if (tab === 'people') {
+    const trainers = profiles.filter((x) => x.role === 'trainer');
+    setBody(`${flashHtml()}<div class="card"><h3>People & roles</h3><p class="muted">Registered users ko receptionist/trainer banayein, aur members ko trainer assign karein.</p>
+      ${table(['Name', 'Email', 'Role', 'Trainer'], profiles.map((x) => [esc(x.full_name), esc(x.email), `<select data-change="role" data-id="${x.id}" ${x.id === S.profile.id ? 'disabled' : ''}>${['member', 'receptionist', 'trainer', 'owner'].map((r) => `<option value="${r}" ${x.role === r ? 'selected' : ''}>${r}</option>`).join('')}</select>`,
+        x.role === 'member' ? `<select data-change="trainer" data-id="${x.id}"><option value="">— none —</option>${trainers.map((t) => `<option value="${t.id}" ${x.trainer_id === t.id ? 'selected' : ''}>${esc(t.full_name)}</option>`).join('')}</select>` : '—']))}</div>`);
+  } else if (tab === 'plans') {
+    setBody(`${flashHtml()}<div class="grid cols-2"><div class="card"><h3>Membership plans</h3>${plans.map((x) => `<div class="item row between"><div><strong>${esc(x.name)}</strong> <span class="muted">${money(x.price)} / ${x.duration_days}d</span> ${x.active ? '' : pill('gray', 'Hidden')}</div><button class="btn ghost small" data-act="toggle-plan" data-id="${x.id}" data-active="${x.active}">${x.active ? 'Hide' : 'Show'}</button></div>`).join('')}</div>
+      <form class="card" data-form="plan"><h3>Plan add karein</h3><label>Name<input name="name" required></label><div class="form-grid"><label>Days<input name="duration_days" type="number" min="1" value="30" required></label><label>Price (Rs)<input name="price" type="number" min="0" required></label></div>
+      <label>Description<input name="description"></label><button class="btn">Add plan</button></form></div>`);
+  }
+}
+let rtTimer = null;
+function startRealtime() {
+  if (S.channel) return;
+  const ping = () => { clearTimeout(rtTimer); rtTimer = setTimeout(() => { if (S.profile?.role === 'owner' && S.tab === 'overview') viewOwner(); }, 600); };
+  S.channel = sb.channel('owner-live').on('postgres_changes', { event: '*', schema: 'public', table: 'payments' }, ping).on('postgres_changes', { event: '*', schema: 'public', table: 'attendance' }, ping).on('postgres_changes', { event: '*', schema: 'public', table: 'memberships' }, ping).subscribe();
+}
+
+/* ===================== EVENT HANDLERS ===================== */
+const actions = {
+  'show-login': () => renderAuth('login'),
+  'show-register': () => renderAuth('register'),
+  logout: async () => { await stopScanner(); if (S.channel) { sb.removeChannel(S.channel); S.channel = null; } await sb.auth.signOut(); S.profile = null; renderAuth('login'); },
+  tab: (d) => { S.tab = d.id; render(); },
+  sel: (d) => { S.sel = d.id; render(); },
+  print: () => window.print(),
+  'close-modal': () => { $('#modal').innerHTML = ''; },
+  receipt: (d) => showReceipt(d.id),
+  collect: (d) => { S.prefill = { member_id: d.member, plan_id: d.plan, membership_id: d.ms || null }; S.tab = 'payments'; render(); },
+  join: async (d) => {
+    const plan = S.plans.find((p) => p.id === d.id); if (!plan) return;
+    const { error } = await sb.from('memberships').insert({ member_id: S.profile.id, plan_id: plan.id, status: 'pending', start_date: todayStr(), end_date: addDays(todayStr(), plan.duration_days - 1) });
+    flash(!error, error ? error.message : `${plan.name} plan ki request bhej di. Activate karne ke liye reception par fee dein.`); render();
+  },
+  'scan-open': () => {
+    $('#scan-area').innerHTML = '<div id="qr-reader"></div><button class="btn ghost small" data-act="scan-close" style="margin-top:.5rem">Scanner band karein</button>';
+    startScanner('qr-reader', async (txt) => {
+      const { data, error } = await sb.rpc('self_check_in', { p_code: txt }); const r = error ? { ok: false, message: error.message } : data;
+      $('#self-result').innerHTML = `<div class="result ${r.ok ? 'ok' : 'bad'}">${r.ok ? 'Check-in ho gaya. Mazedar workout!' : esc(r.message)}</div>`;
+      if (r.ok) { await stopScanner(); $('#scan-area').innerHTML = '<button class="btn" data-act="scan-open">Dobara scan karein</button>'; }
+    });
+  },
+  'scan-close': async () => { await stopScanner(); $('#scan-area').innerHTML = '<button class="btn" data-act="scan-open">Scanner kholen</button>'; },
+  'ci-manual': () => { const v = $('#ci-manual').value.trim(); if (v) { doCheckIn(v); $('#ci-manual').value = ''; } },
+  'ci-pick': (d) => { doCheckIn(d.qr); $('#ci-matches').innerHTML = ''; },
+  'door-qr': async () => {
+    const box = $('#door-box'); if (box.innerHTML) { box.innerHTML = ''; return; }
+    const { data } = await sb.from('gym_settings').select('value').eq('key', 'checkin_code').maybeSingle();
+    box.innerHTML = '<div class="qr-wrap" style="margin:.5rem 0"><div class="qr-box" id="door-qr"></div><p class="muted small">Members isko scan karke self check-in karein.</p></div>';
+    if (data) makeQR('#door-qr', data.value, 200);
+  },
+  del: async (d) => { const { error } = await sb.from(d.table).delete().eq('id', d.id); if (error) flash(false, error.message); render(); },
+  'toggle-plan': async (d) => { await sb.from('membership_plans').update({ active: d.active !== 'true' }).eq('id', d.id); render(); },
+};
+const forms = {
+  login: async (v) => { const { error } = await sb.auth.signInWithPassword({ email: v.email.trim(), password: v.password }); if (error) { flash(false, error.message); return renderAuth('login'); } loadProfileAndRender(); },
+  register: async (v) => {
+    const { data, error } = await sb.auth.signUp({ email: v.email.trim(), password: v.password, options: { data: { full_name: v.full_name.trim(), phone: (v.phone || '').trim() } } });
+    if (error) { flash(false, error.message); return renderAuth('register'); }
+    if (data.session) loadProfileAndRender(); else renderAuth('login', 'Account ban gaya. Email confirm karke sign in karein.');
+  },
+  metric: async (v) => { const { error } = await sb.from('progress_metrics').insert({ member_id: S.profile.id, created_by: S.profile.id, weight_kg: num(v.weight_kg), body_fat_pct: num(v.body_fat_pct), chest_cm: num(v.chest_cm), waist_cm: num(v.waist_cm), notes: v.notes || null }); if (error) flash(false, error.message); render(); },
+  'metric-trainer': async (v) => { const { error } = await sb.from('progress_metrics').insert({ member_id: S.sel, created_by: S.profile.id, weight_kg: num(v.weight_kg), body_fat_pct: num(v.body_fat_pct) }); if (error) flash(false, error.message); render(); },
+  workout: async (v) => { const { error } = await sb.from('workout_plans').insert({ member_id: S.sel, trainer_id: S.profile.id, title: v.title, details: v.details }); if (error) flash(false, error.message); render(); },
+  diet: async (v) => { const { error } = await sb.from('diet_plans').insert({ member_id: S.sel, trainer_id: S.profile.id, title: v.title, details: v.details, daily_calories: num(v.daily_calories), protein_g: num(v.protein_g), carbs_g: num(v.carbs_g), fat_g: num(v.fat_g) }); if (error) flash(false, error.message); render(); },
+  plan: async (v) => { const { error } = await sb.from('membership_plans').insert({ name: v.name, description: v.description || null, duration_days: Number(v.duration_days), price: Number(v.price) }); if (error) flash(false, error.message); render(); },
+  pay: async (v) => {
+    const { data, error } = await sb.rpc('process_payment', { p_member: v.member_id, p_plan: v.plan_id, p_amount: Number(v.amount), p_method: v.method, p_membership: v.membership_id || null, p_note: v.note || null });
+    if (error) { flash(false, error.message); return render(); }
+    flash(true, 'Payment save ho gayi, membership activate ho gayi.'); await render(); showReceipt(data.id);
+  },
+};
+const changes = {
+  'pay-member': () => payMemberChanged(),
+  'pay-plan': (el) => { const p = S.plans.find((x) => x.id === el.value); $('#pay-amount').value = p ? p.price : ''; },
+  role: async (el) => { const { error } = await sb.from('profiles').update({ role: el.value }).eq('id', el.dataset.id); flash(!error, error ? error.message : 'Save ho gaya.'); render(); },
+  trainer: async (el) => { const { error } = await sb.from('profiles').update({ trainer_id: el.value || null }).eq('id', el.dataset.id); flash(!error, error ? error.message : 'Save ho gaya.'); render(); },
+};
+const inputs = {
+  'pay-search': (el) => fillMemberSelect(el.value),
+  'ci-search': (el) => {
+    const q = el.value.toLowerCase(), box = $('#ci-matches');
+    box.innerHTML = q.length < 2 ? '' : S.members.filter((m) => (m.full_name + ' ' + (m.phone || '')).toLowerCase().includes(q)).slice(0, 6)
+      .map((m) => `<button class="list-btn" data-act="ci-pick" data-qr="${esc(m.qr_code)}">${esc(m.full_name)} <span class="muted small">${esc(m.phone || '')}</span></button>`).join('');
+  },
+};
+document.addEventListener('click', (e) => {
+  const t = e.target.closest('[data-act]'); if (!t) return;
+  if (t.tagName === 'A') e.preventDefault();
+  actions[t.dataset.act]?.(t.dataset, t);
+});
+document.addEventListener('submit', async (e) => {
+  const f = e.target.closest('form[data-form]'); if (!f) return;
+  e.preventDefault(); const btn = f.querySelector('button.btn'); if (btn) btn.disabled = true;
+  try { await forms[f.dataset.form](Object.fromEntries(new FormData(f)), f); } catch (err) { flash(false, err.message || String(err)); render(); }
+});
+document.addEventListener('change', (e) => { const t = e.target.closest('[data-change]'); if (t) changes[t.dataset.change]?.(t); });
+document.addEventListener('input', (e) => { const t = e.target.closest('[data-input]'); if (t) inputs[t.dataset.input]?.(t); });
+
+/* ===================== START ===================== */
+sb.auth.onAuthStateChange((event) => { if (event === 'SIGNED_OUT' && S.profile) { S.profile = null; renderAuth('login'); } });
+loadProfileAndRender();
+</script>
+</body>
+</html>
